@@ -19,7 +19,10 @@ export default function App() {
       const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchPrice = p.price > priceRange.min && p.price < priceRange.max;
+
+      // Bug 1 FIX: include boundary values
+      const matchPrice = p.price >= priceRange.min && p.price <= priceRange.max;
+
       const matchCategory = category === 'All' || p.category === category;
       return matchSearch && matchPrice && matchCategory;
     });
@@ -31,8 +34,11 @@ export default function App() {
       case 'name': list = [...list].sort((a, b) => a.name.localeCompare(b.name)); break;
       default: break;
     }
+
     return list;
-  }, [searchQuery, priceRange, sortBy]);
+
+  // Bug 2 FIX: added category dependency
+  }, [searchQuery, priceRange, sortBy, category]);
 
   function addToCart(product) {
     setCartItems(prev => {
@@ -44,7 +50,8 @@ export default function App() {
   }
 
   function removeFromCart(id) {
-    setCartItems(prev => prev.filter(i => i.id === id));
+    // Bug 3 FIX: remove correct item
+    setCartItems(prev => prev.filter(i => i.id !== id));
   }
 
   function updateQty(id, qty) {
@@ -52,8 +59,11 @@ export default function App() {
     setCartItems(prev => prev.map(i => i.id === id ? { ...i, qty } : i));
   }
 
-  const cartCount = cartItems.reduce((sum, i) => sum + i.count, 0);
-  const cartItemIds = new Set(cartItems.map(i => i.productId));
+  // Bug 4 FIX: use qty instead of count
+  const cartCount = cartItems.reduce((sum, i) => sum + i.qty, 0);
+
+  // Bug 5 FIX: use id instead of productId
+  const cartItemIds = new Set(cartItems.map(i => i.id));
 
   return (
     <div className="app">

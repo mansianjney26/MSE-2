@@ -1,7 +1,9 @@
 import React from 'react';
 
 export default function Cart({ items, onRemove, onClose, onUpdateQty }) {
-  const total = items.reduce((sum, item) => sum + item.price * item.count, 0);
+
+  // Bug 6 FIX: use qty instead of wrong "count"
+  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   return (
     <>
@@ -30,15 +32,20 @@ export default function Cart({ items, onRemove, onClose, onUpdateQty }) {
                       <button
                         className="qty-btn"
                         onClick={() => onUpdateQty(item.id, item.qty - 1)}
-                        disabled={item.qty <= 0}
+
+                        // Bug 7 FIX: disable when qty is 1 (not 0)
+                        disabled={item.qty <= 1}
                       >−</button>
+
                       <span className="qty-value">{item.qty}</span>
+
                       <button
                         className="qty-btn"
                         onClick={() => onUpdateQty(item.id, item.qty + 1)}
                       >+</button>
                     </div>
                   </div>
+
                   <button className="remove-btn" onClick={() => onRemove(item.id)} title="Remove">
                     🗑️
                   </button>
@@ -49,7 +56,9 @@ export default function Cart({ items, onRemove, onClose, onUpdateQty }) {
             <div className="cart-footer">
               <div className="cart-total">
                 <span>Total</span>
-                <span className="cart-total-value">₹{total.toLocaleString('en-IN')}</span>
+                <span className="cart-total-value">
+                  ₹{total.toLocaleString('en-IN')}
+                </span>
               </div>
               <button className="checkout-btn">Proceed to Checkout</button>
             </div>
